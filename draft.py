@@ -1,10 +1,11 @@
-from dataset import MyDataset
 from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
 from vit_class import ViT
 from tqdm.notebook import tqdm
 import torch.optim as optim
+from create_train_lists import create_datasets
+
 
 model_checkpoint = 'google/vit-base-patch16-224-in21k'
 seed = 42
@@ -24,16 +25,11 @@ config = {
 }
 
 train_data_path = "~/home/nas2/ckoutlis/DataStorage/vggface2/train"
-test_data_path = "~/home/nas2/ckoutlis/DataStorage/vggface2/test"
 
-train_ds  = MyDataset(train_data_path,True)
-# eval_ds  = MyDataset("train_data/val/*/*",False)
-eval_ds = None
-test_ds  = MyDataset(test_data_path,False)
+train_ds, eval_ds, test_ds = create_datasets()  
 
-train_dl = DataLoader(train_ds,batch_size=batch_size,shuffle=True)
-# eval_dl = DataLoader(eval_ds,batch_size=batch_size,shuffle=True)
-eval_dl = None
+train_dl = DataLoader(train_ds,batch_size=batch_size,shuffle=True,)
+eval_dl = DataLoader(eval_ds,batch_size=batch_size,shuffle=True)
 test_dl = DataLoader(test_ds,batch_size=batch_size,shuffle=True)
 
 def dataloaders(phase,train_dl=train_dl,eval_dl=eval_dl,test_dl=test_dl):
@@ -55,7 +51,7 @@ def dataset_size(phase,train_ds=train_ds,eval_ds=eval_ds,test_ds=test_ds):
 def model_train(dataloader, epochs, learning_rate):
 
     use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device = torch.device("cuda:0" if use_cuda else "cpu")
 
     # Load nodel, loss function, and optimizer
     model = ViT().to(device)

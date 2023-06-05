@@ -15,7 +15,7 @@ class ViT(nn.Module):
         )
 
   def forward(self, x):
-
+      
     x = self.vit(x)['last_hidden_state']
     # Use the embedding of [CLS] token
     output = self.classifier(x[:, 0, :])

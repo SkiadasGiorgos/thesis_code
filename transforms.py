@@ -8,7 +8,7 @@ def create_transforms(train=True):
   if train:
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Resize((224, 224), antialias=True),
+        transforms.Resize((224,224), antialias=True),
         transforms.Normalize(mean=mean,
                              std=std
                              ),
@@ -19,7 +19,7 @@ def create_transforms(train=True):
         transforms.Normalize(mean=mean,
                              std=std
                              ),
-        transforms.Resize((224, 224), antialias=True),
+        transforms.Resize((224,224), antialias=True),
     ])
 
   return transform

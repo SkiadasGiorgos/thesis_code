@@ -7,7 +7,7 @@ from transforms import create_transforms
 
 class MyDataset(Dataset):
     def __init__(self, path, transform):
-        self.files = glob.glob(path)
+        self.files = path
         print(type(self.files))
         self.transform = create_transforms(transform)
         self.labels = [filepath.split('/')[-2] for filepath in self.files]

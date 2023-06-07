@@ -1,6 +1,9 @@
 from transformers import ViTModel, ViTConfig
 import torch.nn as nn
-from draft import model_checkpoint
+from train import model_checkpoint
+from tqdm import tqdm
+import torch
+
 
 class ViT(nn.Module):
 
@@ -21,3 +24,5 @@ class ViT(nn.Module):
     output = self.classifier(x[:, 0, :])
 
     return output
+  
+

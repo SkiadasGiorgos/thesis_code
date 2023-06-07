@@ -15,7 +15,7 @@ seed = 42
 lr = 1e-4
 epochs = 5
 batch_size = 256
-save_path = "/home/skiadasg/thesis_code/results/results_second.pkl"
+save_path = "/home/skiadasg/thesis_code/results/results.pkl"
 model_save_path = "/home/skiadasg/thesis_code/results/vit_model_vggtest.pt"
 
 config = {
@@ -161,10 +161,10 @@ def train_model(model,optimizer,scheduler,num_epochs):
         metrics["val_loss"].append(epoch_loss)
         metrics["val_acc"].append(epoch_acc.item())
 
-      results.append(metrics)
+    results.append(metrics)
       
-      with open(save_path, "wb") as h:
-        pickle.dump(results, h, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(save_path, "wb") as h:
+      pickle.dump(results, h, protocol=pickle.HIGHEST_PROTOCOL)
 
   
   torch.save(best_model_wts,model_save_path)

@@ -11,16 +11,18 @@ import copy
 import os
 
 model_checkpoint = "vit_large_r50_s32_224.augreg_in21k"
+# model_checkpoint = 'resnet50.a1_in1k'
+
 seed = 42
 lr = 1e-4
-epochs = 5
-batch_size = 256
+epochs = 10
+batch_size = 32
 save_path = "/home/skiadasg/thesis_code/results/results.pkl"
-model_save_path = "/home/skiadasg/thesis_code/results/vit_model_vggtest.pt"
+model_save_path = "/home/skiadasg/thesis_code/results/resnet_model_vgg.pkl"
 
 config = {
     "model_ckp": model_checkpoint,
-    "dataset": "VggFace2-Test",
+    "dataset": "VggFace2",
     "seed": seed,
     "batch_size": batch_size,
     "lr": lr,
@@ -53,9 +55,8 @@ def dataset_size(phase,train_ds=train_ds,eval_ds=eval_ds,test_ds=test_ds):
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 torch.cuda.empty_cache()
-# device = torch.device('cpu')
 
-model = timm.create_model(model_checkpoint,pretrained=True,num_classes=len(os.listdir("/nas2/ckoutlis/DataStorage/vggface2/data/test")))
+model = timm.create_model(model_checkpoint,pretrained=True,num_classes=len(os.listdir("/nas2/ckoutlis/DataStorage/vggface2/data/train")))
 
 '''
   When using any model that does not contain HEAD
@@ -72,6 +73,7 @@ for param in model.parameters():
 param_name = [name for name,_ in model.named_parameters()] # All parameters name
 layer_name = [name for name,_ in model.named_modules()] # All layers name
 
+
 def debarcle_layers(model, num_debarcle):
     '''Debarcle From the last [-1]layer to the [-num_debarcle] layers, 
     approximately(for there is Conv2d which has only weight parameter)'''
@@ -82,15 +84,16 @@ def debarcle_layers(model, num_debarcle):
     for name, param in model.named_parameters():
         param.requires_grad = True if name in param_debarcle else False
 
-debarcle_layers(model,30)
+debarcle_layers(model,3g0)
 
 # Replacing model's last layer in order to adjust the final results to our dataset.
+
 n_inputs = model.head.in_features
 model.head = nn.Sequential(
     nn.Linear(n_inputs,512),
     nn.ReLU(),
     nn.Dropout(0.3),
-    nn.Linear(512,len(os.listdir("/nas2/ckoutlis/DataStorage/vggface2/data/test"))) #!!!Output size must match number of labels!!!!
+    nn.Linear(512,len(os.listdir("/nas2/ckoutlis/DataStorage/vggface2/data/train"))) #!!!Output size must match number of labels!!!!
 )
 
 model.to(device)
@@ -153,6 +156,7 @@ def train_model(model,optimizer,scheduler,num_epochs):
 
       if  phase == "val"  and epoch_acc>best_acc:
         best_model_wts=copy.deepcopy(model.state_dict())
+        best_model = model
 
       if phase == "train":
         metrics["train_loss"].append(epoch_loss)
@@ -167,7 +171,7 @@ def train_model(model,optimizer,scheduler,num_epochs):
       pickle.dump(results, h, protocol=pickle.HIGHEST_PROTOCOL)
 
   
-  torch.save(best_model_wts,model_save_path)
+  torch.save(best_model,model_save_path)
   return model.load_state_dict(best_model_wts)
 
 

@@ -3,7 +3,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 
-save_path = "/home/skiadasg/thesis_code/results/ViT_07_06.pkl"
+save_path = "/home/skiadasg/thesis_code/results/results.pkl"
 
 torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 

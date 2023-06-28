@@ -25,11 +25,8 @@ all_paths = []
 """
 nones = 0
 dictionary = {}
-count = 0
+
 for image in tqdm(image_list):
-    count+=1
-    if count ==10: 
-        break
     frame = Image.open(image).convert("RGB")
     frame = frame.resize([224,224])
     _,_,landmarks = mtcnn.detect(frame,landmarks=True)

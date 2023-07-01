@@ -3,7 +3,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 
-save_path = "/home/skiadasg/thesis_code/results/results.pkl"
+save_path = "/home/skiadasg/thesis_code/thesis_code/results/results.pkl"
 
 torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
@@ -27,7 +27,7 @@ for figure in ["acc","loss"]:
     train = results[train_str]
     val = results[val_str]
     file_name = config["model_ckp"]+figure
-    save_path = "/home/skiadasg/thesis_code/plots/"+title+".png"
+    save_path = "/home/skiadasg/thesis_code/thesis_code/plots/"+title+".png"
 
     plt.figure()
     plt.plot(train)

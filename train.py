@@ -10,16 +10,17 @@ from timm.loss import LabelSmoothingCrossEntropy
 import copy
 import os
 
-model_checkpoint = "vit_large_r50_s32_224.augreg_in21k"
-# model_checkpoint = 'resnet50.a1_in1k'
+# model_checkpoint = "vit_large_r50_s32_224.augreg_in21k"
+# model_checkpoint = 'resnet32ts.ra2_in1k'
+model_checkpoint = 'vit_small_r26_s32_224.augreg_in21k_ft_in1k'
 
 seed = 42
 lr = 1e-4
 epochs = 10
 batch_size = 32
-save_path = "/home/skiadasg/thesis_code/results/results.pkl"
-model_save_path = "/home/skiadasg/thesis_code/results/resnet_model_vgg.pkl"
-
+save_path = "/home/skiadasg/thesis_code/thesis_code/results/results.pkl"
+model_save_path = "/home/skiadasg/thesis_code/thesis_code/results/resnet_model_vgg.pkl"
+  
 config = {
     "model_ckp": model_checkpoint,
     "dataset": "VggFace2",
@@ -29,7 +30,7 @@ config = {
     "epochs": epochs   
 }
 
-train_data_path = "~/home/nas2/ckoutlis/DataStorage/vggface2/train"
+train_data_path = "~/home/nas2/ckoutlis/DataStorage/vggface2/test"
 
 train_ds, eval_ds, test_ds = create_datasets()  
 
@@ -68,23 +69,23 @@ model = timm.create_model(model_checkpoint,pretrained=True,num_classes=len(os.li
 #                          nn.Linear(in_features=512,out_features=len(os.listdir("/nas2/ckoutlis/DataStorage/vggface2/data/test")),bias=False))
 
 for param in model.parameters():
-  param.requires_grad =  False
+  param.requires_grad =  True
 
 param_name = [name for name,_ in model.named_parameters()] # All parameters name
 layer_name = [name for name,_ in model.named_modules()] # All layers name
 
 
-def debarcle_layers(model, num_debarcle):
-    '''Debarcle From the last [-1]layer to the [-num_debarcle] layers, 
-    approximately(for there is Conv2d which has only weight parameter)'''
-    num_debarcle *= 2
-    param_debarcle = param_name[-num_debarcle:]
-    if param_debarcle[0].split('.')[-1] == 'bias':
-        param_debarcle = param_name[-(num_debarcle + 1):]
-    for name, param in model.named_parameters():
-        param.requires_grad = True if name in param_debarcle else False
+# def debarcle_layers(model, num_debarcle):
+#     '''Debarcle From the last [-1]layer to the [-num_debarcle] layers, 
+#     approximately(for there is Conv2d which has only weight parameter)'''
+#     num_debarcle *= 2
+#     param_debarcle = param_name[-num_debarcle:]
+#     if param_debarcle[0].split('.')[-1] == 'bias':
+#         param_debarcle = param_name[-(num_debarcle + 1):]
+#     for name, param in model.named_parameters():
+#         param.requires_grad = True if name in param_debarcle else False
 
-debarcle_layers(model,3g0)
+# debarcle_layers(model,len(layer_name))
 
 # Replacing model's last layer in order to adjust the final results to our dataset.
 
@@ -93,7 +94,7 @@ model.head = nn.Sequential(
     nn.Linear(n_inputs,512),
     nn.ReLU(),
     nn.Dropout(0.3),
-    nn.Linear(512,len(os.listdir("/nas2/ckoutlis/DataStorage/vggface2/data/train"))) #!!!Output size must match number of labels!!!!
+    nn.Linear(512,len(os.listdir("/nas2/ckoutlis/DataStorage/vggface2/data/test"))) #!!!Output size must match number of labels!!!!
 )
 
 model.to(device)
@@ -108,7 +109,7 @@ results = []
 results.append(config)
 
 def train_model(model,optimizer,scheduler,num_epochs):
-  print(device)
+  
   metrics = {"train_acc":[],"val_acc":[],"train_loss":[],"val_loss":[]}
   for epoch in range(num_epochs):
     print(f'Epoch:',epoch)

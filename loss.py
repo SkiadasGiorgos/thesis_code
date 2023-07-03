@@ -12,7 +12,7 @@ class Distillation_Loss(nn.Module):
 
     def forward(self,output,target,features_old=None,features_new=None,distilled_old_feats=None,
                 distilled_new_feats=None):
-        if features_new is None:
+        if features_old is None:
             loss = self.cross_entropy(output,target)
         elif 0 in distilled_new_feats or 0 in distilled_old_feats:
             loss = self.cross_entropy(output,target) + self.mse(features_new,features_old)
